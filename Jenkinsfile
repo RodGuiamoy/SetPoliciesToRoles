@@ -1,7 +1,17 @@
-def environment = ""
-def credentialsId = ""
-def policyARNs = ""
-def roleName = ""
+// def environment = ""
+// def credentialsId = ""
+// def policyARNs = ""
+// def roleName = ""
+
+
+class rolesToPoliciesObj {
+    String environment
+    String policyNames
+    String policyARNs
+    String roleName
+}
+
+def rolesToPoliciesObjs = []
 
 pipeline {
 
@@ -26,70 +36,120 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: "*/main"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: "https://github.com/RodGuiamoy/SetPoliciesToRoles.git"]]])
             }
         }
-        stage('GetEnvironmentDetails') {
+        stage('Read CSV') {
             steps {
                 script {
-                    environment = params.Environment
+                    def csvData = sh(script: 'python3 read_csv.py', returnStdout: true).trim()
 
-                    switch (environment) {
-                        case 'rod_aws':
-                            credentialsId = 'rod_aws'
-                            break
-                        default:
-                            error("No matching environment details found that matches \"${environment}\".")
-                    }
+                    def rows = csvData.split('\n')
+                    row = rows.drop(1)
 
-                    echo "Successfully retrieved environment details for environment \"${environment}\"."          
-                }
-            }
-        }
-        stage('GetPolicyARNs') {
-            steps {
-                script {
-                    policyNames = params.PolicyNames
+                    rows.each { row ->
 
-                    echo "${policyNames}"
+                        // Define the regular expression pattern
+                        def pattern = /'([^']*)'/
 
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        // Find all matches using the pattern
+                        def matcher = (row =~ pattern)
+
+                        // rolesToPoliciesObjs << new rolesToPoliciesObj(environment: matcher[0][1], policyNames: matcher[1][1], policyARNs: "", roleName: matcher[2][1])
+
+                        //echo "${matcher[0]}"
+                        // Iterate over matches and print captured groups
+
+                        def environment = ""
+                        def policyNames = ""
+                        def roleName = ""
+
+                        int ctr = 0
+                        matcher.each { match ->
+                            if (ctr == 0) {
+                                environment = match[1]
+                            }
+                            else if (ctr == 1) {
+                                policyNames = match[1]
+                            }
+                            else if (ctr == 2) {
+                                roleName = match[1]
+                            }
+
+                            ctr++
+                        }
+
+                        echo "${environment}"
+                        echo "${policyNames}" 
+                        echo "${roleName}"
                         
-                        def cmd = "python3 1_get_policy_arns.py '${policyNames}'"
+                    }
 
-                        // Executes the AWS CLI command and does some post-processing.
-                        // The output includes the command at the top and can't be parsed so we have to drop the first line
-                        policyARNs = sh(script: cmd, returnStdout: true).trim()
-                        // cmdOutput = cmdOutput.readLines().drop(1).join("\n")
+                    // echo "${rolesToPoliciesObjs}"
+                }
+            }
+        }
+        // stage('GetEnvironmentDetails') {
+        //     steps {
+        //         script {
+        //             environment = params.Environment
+
+        //             switch (environment) {
+        //                 case 'rod_aws':
+        //                     credentialsId = 'rod_aws'
+        //                     break
+        //                 default:
+        //                     error("No matching environment details found that matches \"${environment}\".")
+        //             }
+
+        //             echo "Successfully retrieved environment details for environment \"${environment}\"."          
+        //         }
+        //     }
+        // }
+        // stage('GetPolicyARNs') {
+        //     steps {
+        //         script {
+        //             policyNames = params.PolicyNames
+
+        //             echo "${policyNames}"
+
+        //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                         
-                        echo "${policyARNs}"
-                    }
-                    
-                }
-            }
-        }
-        stage('CreateRole') {
-            steps {
-                script {
-                    roleName = params.RoleName
+        //                 def cmd = "python3 1_get_policy_arns.py '${policyNames}'"
 
-                    echo "${roleName}"
-
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        sh "python3 2_create_role.py '${roleName}'"
-                    }
+        //                 // Executes the AWS CLI command and does some post-processing.
+        //                 // The output includes the command at the top and can't be parsed so we have to drop the first line
+        //                 policyARNs = sh(script: cmd, returnStdout: true).trim()
+        //                 // cmdOutput = cmdOutput.readLines().drop(1).join("\n")
+                        
+        //                 echo "${policyARNs}"
+        //             }
                     
-                }
-            }
-        }
-        stage('AttachPoliciesToRoles') {
-            steps {
-                script {
+        //         }
+        //     }
+        // }
+        // stage('CreateRole') {
+        //     steps {
+        //         script {
+        //             roleName = params.RoleName
 
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        sh "python3 3_attach_policies_to_role.py '${roleName}' '${policyARNs}'"
-                    }
+        //             echo "${roleName}"
+
+        //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        //                 sh "python3 2_create_role.py '${roleName}'"
+        //             }
                     
-                }
-            }
-        }
+        //         }
+        //     }
+        // }
+        // stage('AttachPoliciesToRoles') {
+        //     steps {
+        //         script {
+
+        //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        //                 sh "python3 3_attach_policies_to_role.py '${roleName}' '${policyARNs}'"
+        //             }
+                    
+        //         }
+        //     }
+        // }
     }
 }
 
