@@ -1,3 +1,9 @@
+def environment = ""
+def credentialsId = ""
+def policyARNs = ""
+def roleName = ""
+
+
 pipeline {
   agent { label 'jenkins-slave-linux-cu01use1gs1jx01' }
   
@@ -8,10 +14,11 @@ pipeline {
         // string(name: 'Employee ID', defaultValue: '', description: '')
         // string(name: 'ServiceNow Case', defaultValue: '', description: '')
         string(name: 'Environment', defaultValue: 'rod_aws', description: '')
+        string(name: 'RoleName', defaultValue: 'rod_test_00', description: '')
+        string(name: 'PolicyNames', defaultValue: 'AMICreationAssumeRole,AMICreationPolicy,NonExistentPolicy', description: '')
     }
 
-    def environment = ""
-    def credentialsId = ""
+
 
     stages {
         stage('Checkout Source') {
@@ -26,13 +33,41 @@ pipeline {
 
                     switch (environment) {
                         case 'rod_aws':
-                            credentialsId = '554249804926'
+                            credentialsId = 'rod_aws'
                             break
                         default:
                             error("No matching environment details found that matches \"${environment}\".")
                     }
 
-                        echo "Successfully retrieved environment details for environment \"${environment}\"."          
+                    echo "Successfully retrieved environment details for environment \"${environment}\"."          
+                }
+            }
+        }
+        stage('GetPolicyARNs') {
+            steps {
+                script {
+                    policyNames = params.PolicyNames
+
+                    echo "${policyNames}"
+
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        sh "python3 1_get_policy_arns.py '${policyNames}'"
+                    }
+                    
+                }
+            }
+        }
+        stage('CreateRole') {
+            steps {
+                script {
+                    roleName = params.RoleName
+
+                    echo "${roleName}"
+
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        sh "python3 2_create_role.py '${roleName}'"
+                    }
+                    
                 }
             }
         }
