@@ -10,6 +10,8 @@ def get_policy_arn_by_name(policy_names):
     # Create a dictionary of policies with policy names as keys
     policies = {policy['PolicyName']: policy['Arn'] for policy in response['Policies']}
     
+    print(policies)
+    
     # Get ARNs for specified policy names
     policy_arns = {policy_name: policies.get(policy_name) for policy_name in policy_names}
     
