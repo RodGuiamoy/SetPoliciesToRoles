@@ -11,8 +11,8 @@ String getAwsCredential(String environment) {
             return 'infra-at-arcom'
         case "dcoflexplus":
             return 'infra-at-flexplus'
-        // case "dcosandbox"
-        //     return ''
+        case "dcosandbox"
+            return 'infra-at-delsandbox'
         case "DeltekCostPoint":
             return 'infra-at-costpoint'
         case "DeltekDCO":
