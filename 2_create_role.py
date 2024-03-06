@@ -22,6 +22,7 @@ try:
     # Try to get the role. If it exists, this call will succeed.
     client.get_role(RoleName=role_name)
     print(f"Role '{role_name}' already exists. Skipping creation.")
+    
 except client.exceptions.NoSuchEntityException:
     # If the role does not exist, create it.
     response = client.create_role(
@@ -29,6 +30,7 @@ except client.exceptions.NoSuchEntityException:
         AssumeRolePolicyDocument=json.dumps(trust_policy)
     )
     print(response)
+    
 except Exception as e:
     # Catch any other exceptions and print the error
     print(f"An error occurred: {e}")
