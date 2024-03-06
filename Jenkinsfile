@@ -316,10 +316,11 @@ pipeline {
 
                                 def roleName = obj.roleName
 
-                                def cmd = "python3 2_create.role.py '${roleName}'"
+                                def cmd = "python3 2_create_role.py '${roleName}'"
 
                                 // Executes the AWS CLI command and does some post-processing.
-                                sh(script: cmd, returnStdout: true).trim()
+                                def newRole = sh(script: cmd, returnStdout: true).trim()
+                                echo "${newRole}"
                             }
                         }
                     }
