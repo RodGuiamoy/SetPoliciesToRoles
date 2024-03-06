@@ -188,11 +188,12 @@ pipeline {
                         // }
 
                         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${awsCredential}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                            
-                            def policyNamesGroup = objs.collect { it.policyNames }
-                                
-                            policyNamesGroup.each { policyNames ->
-                                // echo "${policyNames}"
+
+                            objs.each { obj ->
+                                echo "${obj.roleName} ${obj.policyNames}"
+
+                                def roleName = obj.roleName
+                                def policyNames = obj.policyNames
 
                                 def cmd = "python3 1_get_policy_arns.py '${policyNames}'"
 
@@ -201,40 +202,130 @@ pipeline {
 
                                 echo "${policyARNs}"
                                 
-                                rolesToPoliciesObjs.find { it.policyNames == policyNames && it.environment == environment }?.policyARNs = policyARNs
-
-                                // echo "${policyARNs}"
-                                //sleep(30)
+                                rolesToPoliciesObjs.find { (it.policyNames == policyNames && it.environment == environment) && it.roleName == roleName }?.policyARNs = policyARNs
                             }
                         }
                     }
 
-                    // rolesToPoliciesObjs.each { obj ->
-                    //     def str = "\n"
-                    //     str += "Environment: ${obj.environment}\n"
-                    //     str += "Role: ${obj.roleName}\n"
-                    //     str += "Policy Names: ${obj.policyNames}\n"
-                    //     str += "Policy ARNs: ${obj.policyARNs}\n"
+                    rolesToPoliciesObjs.each { obj ->
+                        def str = "\n"
+                        str += "Environment: ${obj.environment}\n"
+                        str += "Role: ${obj.roleName}\n"
+                        str += "Policy Names: ${obj.policyNames}\n"
+                        str += "Policy ARNs: ${obj.policyARNs}\n"
                     
-                    //     echo "${str}"
-                    // }
+                        echo "${str}"
+                    }
                 }
             }
         }
-        // stage('CreateRole') {
-        //     steps {
-        //         script {
-        //             roleName = params.RoleName
+        stage('CreateRole') {
+            steps {
+                script {
+                    // policyNames = params.PolicyNames
 
-        //             echo "${roleName}"
+                    // echo "${policyNames}"
 
-        //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-        //                 sh "python3 2_create_role.py '${roleName}'"
-        //             }
+                    def rolesByEnvironment = rolesToPoliciesObjs.groupBy { it.environment }
                     
-        //         }
-        //     }
-        // }
+                    rolesByEnvironment.each { environment, objs ->
+                        
+                        echo "${environment}"
+
+                        def awsCredential = ""
+
+                        // if(environment=="Deltekdev"){
+                        //     awsCredential = 'infra-at-dev'
+                        // }
+                        if(environment=="dcoflexplus"){
+                            awsCredential = 'infra-at-flexplus'
+                        }
+                        // else if(environment=="Costpoint"){
+                        //     awsCredential = 'infra-at-costpoint'
+                        // }
+                        // else if(environment=="DCO"){
+                        //     awsCredential = 'infra-at-dco'
+                        // }
+                        // else if(environment=="Offsec"){
+                        //     awsCredential = 'infra-at-offsec'
+                        // }
+                        // else if(environment=="GovwinProduction"){
+                        //     awsCredential = 'infra-at-govwinpd'
+                        // }
+                        // else if(environment=="GovwinDev"){
+                        //     awsCredential = 'infra-at-govwindv'
+                        // }
+                        // else if(environment=="Interspec"){
+                        //     awsCredential = 'infra-at-interspec'
+                        // }
+                        // else if(environment=="Especs"){
+                        //     awsCredential = 'infra-at-especs'
+                        // }
+                        // else if(environment=="Arcom"){
+                        //     awsCredential = 'infra-at-arcom'
+                        // }
+                        // else if(environment=="DeltekEA"){
+                        //     awsCredential = 'infra-at-deltekea'
+                        // }
+                        // else if(environment=="Onvia"){
+                        //     awsCredential = 'infra-at-onvia'
+                        // }
+                        // else if(environment=="GlobalOSS"){
+                        //     awsCredential = 'infra-at-oss'
+                        // }
+                        // else if(environment=="ECMaconomy"){
+                        //     awsCredential = 'infra-at-ecmaconomy'
+                        // }
+                        // else if(environment=="SecuritySandbox"){
+                        //     awsCredential = 'infra-at-secsandbox'
+                        // }
+                        // else if(environment=="DeliverySandbox"){
+                        //     awsCredential = 'infra-at-delsandbox'
+                        // }
+                        // else if(environment=="Unionpoint"){
+                        //     awsCredential = 'infra-at-unionpoint'
+                        // }
+                        // else if(environment=="ServiceBroker"){
+                        //     awsCredential = 'infra-at-servicebroker'
+                        // }
+                        // else if(environment=="Archsandbox"){
+                        //     awsCredential = 'infra-at-archsandbox'
+                        // }
+                        // else if(environment=="SC-Vantagepoint"){
+                        //     awsCredential = 'infra-at-sc-vantagepoint'
+                        // }
+                        // else if(environment=="EC-MGT"){
+                        //     awsCredential = 'infra-at-ec-mgt'
+                        // }
+                        // else if(environment=="PieterEerlings"){
+                        //     awsCredential = 'infra-at-pieter-eerlings'
+                        // }
+                        // else if(environment=="sc-dhtmlx"){
+                        //     awsCredential = 'infra-at-sc-dhtmlx'
+                        // }
+                        // else if(environment=="sc-ssec"){
+                        //     awsCredential = 'infra-at-sc-ssec'
+                        // }
+                        // else if(environment=="ec-ssec"){
+                        //     awsCredential = 'infra-at-ec-ssec'
+                        // }
+
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${awsCredential}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+
+                            objs.each { obj ->
+
+                                def roleName = obj.roleName
+
+                                def cmd = "python3 2_create.role.py '${roleName}'"
+
+                                // Executes the AWS CLI command and does some post-processing.
+                                sh(script: cmd, returnStdout: true).trim()
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // stage('AttachPoliciesToRoles') {
         //     steps {
         //         script {
