@@ -191,24 +191,30 @@ pipeline {
                             def policyNamesGroup = objs.collect { it.policyNames }
                                 
                             policyNamesGroup.each { policyNames ->
-                                echo "${policyNames}"
+                                // echo "${policyNames}"
 
-                    
                                 def cmd = "python3 1_get_policy_arns.py '${policyNames}'"
 
                                 // Executes the AWS CLI command and does some post-processing.
                                 // The output includes the command at the top and can't be parsed so we have to drop the first line
                                 policyARNs = sh(script: cmd, returnStdout: true).trim()
-                                // cmdOutput = cmdOutput.readLines().drop(1).join("\n")
                                 
-                                echo "${policyARNs}"
+                                rolesToPoliciesObjs.find { it.policyNames == policyNames && it.environment == environment }?.policyARNs = policyARNs
+
+                                // echo "${policyARNs}"
                             }
                         }
-
                     }
 
+                    rolesToPoliciesObjs.each { obj ->
+                        def str = "\n"
+                        str += "Environment: ${obj.environment}\n"
+                        str += "Role: ${obj.roleName}\n"
+                        str += "Policy Names: ${obj.policyNames}\n"
+                        str += "Policy ARNs: ${obj.policyARNs}\n"
                     
-                    
+                        echo "${str}"
+                    }
                 }
             }
         }
