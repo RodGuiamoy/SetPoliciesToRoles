@@ -7,58 +7,40 @@ class rolesToPoliciesObj {
 
 String getAwsCredential(String environment) {
     switch (environment) {
-        case "Deltekdev":
-            return 'infra-at-dev'
-        case "dcoflexplus":
-            return 'infra-at-flexplus'
-        case "Costpoint":
-            return 'infra-at-costpoint'
-        case "DCO":
-            return 'infra-at-dco'
-        case "Offsec":
-            return 'infra-at-offsec'
-        case "GovwinProduction":
-            return 'infra-at-govwinpd'
-        case "GovwinDev":
-            return 'infra-at-govwindv'
-        case "Interspec":
-            return 'infra-at-interspec'
-        case "Especs":
-            return 'infra-at-especs'
-        case "Arcom":
+        case "Avitru"
             return 'infra-at-arcom'
-        case "DeltekEA":
-            return 'infra-at-deltekea'
-        case "Onvia":
-            return 'infra-at-onvia'
-        case "GlobalOSS":
-            return 'infra-at-oss'
-        case "ECMaconomy":
+        case "dcoflexplus"
+            return 'infra-at-flexplus'
+        // case "dcosandbox"
+        //     return ''
+        case "Deltek CostPoint"
+            return 'infra-at-costpoint'
+        case "DeltekDCO"
+            return 'infra-at-dco'
+        case "DeltekDCODev"
+            return 'infra-at-dev'
+        case "EC-Maconomy-Sandbox"
             return 'infra-at-ecmaconomy'
-        case "SecuritySandbox":
-            return 'infra-at-secsandbox'
-        case "DeliverySandbox":
-            return 'infra-at-delsandbox'
-        case "Unionpoint":
-            return 'infra-at-unionpoint'
-        case "ServiceBroker":
-            return 'infra-at-servicebroker'
-        case "Archsandbox":
-            return 'infra-at-archsandbox'
-        case "SC-Vantagepoint":
-            return 'infra-at-sc-vantagepoint'
-        case "EC-MGT":
-            return 'infra-at-ec-mgt'
-        case "PieterEerlings":
-            return 'infra-at-pieter-eerlings'
-        case "sc-dhtmlx":
-            return 'infra-at-sc-dhtmlx'
-        case "sc-ssec":
-            return 'infra-at-sc-ssec'
-        case "ec-ssec":
+        case "EC-SSEC"
             return 'infra-at-ec-ssec'
+        case "GlobalOSS"
+            return 'infra-at-oss'
+        case "GovWin"
+            return 'infra-at-govwinpd'
+        case "GovWinDev"
+            return 'infra-at-govwindv'
+        case "OnviaInc"
+            return 'infra-at-onvia'
+        case "SC-Cloud-Arch-Sandbox"
+            return 'infra-at-archsandbox'
+        case "SC-DHTMLX"
+            return 'infra-at-sc-dhtmlx'
+        case "SC-SSEC"
+            return 'infra-at-sc-ssec'
+        case "Unionpoint"
+            return 'infra-at-unionpoint'
         default:
-            return 'default-credential' // or null if you prefer
+            return '' 
     }
 }
 
@@ -193,20 +175,32 @@ pipeline {
 
                         def awsCredential = getAwsCredential(environment)
 
-                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${awsCredential}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        try {
+                            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${awsCredential}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
-                            objs.each { obj ->
+                                objs.each { obj ->
 
-                                def roleName = obj.roleName
-                                def policyARNs = obj.policyARNs
+                                    def roleName = obj.roleName
+                                    def policyARNs = obj.policyARNs
 
-                                def cmd = "python3 3_attach_policies_to_role.py '${roleName}' '${policyARNs}'"
+                                    def cmd = "python3 3_attach_policies_to_role.py '${roleName}' '${policyARNs}'"
 
-                                // Executes the AWS CLI command and does some post-processing.
-                                def policyAttachmentResponse = sh(script: cmd, returnStdout: true).trim()
-                                echo "${policyAttachmentResponse}"
+                                    try {
+                                        // Executes the AWS CLI command and does some post-processing.
+                                        def policyAttachmentResponse = sh(script: cmd, returnStdout: true).trim()
+                                        echo "${policyAttachmentResponse}"
+                                    }
+                                    catch (Exception e) {
+                                    unstable("An error occurred: ${e.message}")
+                                    }
+                                }
                             }
                         }
+                        catch (Exception e) {
+                            unstable("An error occurred: ${e.message}")
+                        }
+
+                        
                     }
                 }
             }
