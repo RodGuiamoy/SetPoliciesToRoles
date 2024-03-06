@@ -1,19 +1,3 @@
-// def environment = ""
-// def credentialsId = ""
-// def policyARNs = ""
-
-
-// // Function to find region by prefix for non-goss AWS accounts
-// def findEnvironmentCredentialsId(String environment, List<environmentCredentialIDs> environmentCredentialIDs) {
-//     for (environmentCredentialID in environmentCredentialIDs) {
-//         if (environment == environmentCredentialIDs.environment) {
-//             return environmentCredentialIDs.credentialId
-//         }
-//     }
-//     return null
-// }
-
-
 class rolesToPoliciesObj {
     String environment
     String policyNames
@@ -21,25 +5,70 @@ class rolesToPoliciesObj {
     String roleName
 }
 
+String getAwsCredential(String environment) {
+    switch (environment) {
+        case "Deltekdev":
+            return 'infra-at-dev'
+        case "dcoflexplus":
+            return 'infra-at-flexplus'
+        case "Costpoint":
+            return 'infra-at-costpoint'
+        case "DCO":
+            return 'infra-at-dco'
+        case "Offsec":
+            return 'infra-at-offsec'
+        case "GovwinProduction":
+            return 'infra-at-govwinpd'
+        case "GovwinDev":
+            return 'infra-at-govwindv'
+        case "Interspec":
+            return 'infra-at-interspec'
+        case "Especs":
+            return 'infra-at-especs'
+        case "Arcom":
+            return 'infra-at-arcom'
+        case "DeltekEA":
+            return 'infra-at-deltekea'
+        case "Onvia":
+            return 'infra-at-onvia'
+        case "GlobalOSS":
+            return 'infra-at-oss'
+        case "ECMaconomy":
+            return 'infra-at-ecmaconomy'
+        case "SecuritySandbox":
+            return 'infra-at-secsandbox'
+        case "DeliverySandbox":
+            return 'infra-at-delsandbox'
+        case "Unionpoint":
+            return 'infra-at-unionpoint'
+        case "ServiceBroker":
+            return 'infra-at-servicebroker'
+        case "Archsandbox":
+            return 'infra-at-archsandbox'
+        case "SC-Vantagepoint":
+            return 'infra-at-sc-vantagepoint'
+        case "EC-MGT":
+            return 'infra-at-ec-mgt'
+        case "PieterEerlings":
+            return 'infra-at-pieter-eerlings'
+        case "sc-dhtmlx":
+            return 'infra-at-sc-dhtmlx'
+        case "sc-ssec":
+            return 'infra-at-sc-ssec'
+        case "ec-ssec":
+            return 'infra-at-ec-ssec'
+        default:
+            return 'default-credential' // or null if you prefer
+    }
+}
+
+
 def rolesToPoliciesObjs = []
 
 pipeline {
 
   agent { label 'jenkins-slave-linux-cu01use1gs1jx01' }
   
-  parameters {
-        // text(name: 'AWS Environment', defaultValue: '', description: 'Specify one or more of the following. If more than one environment is required, separate each environment with a line break:\n\nDeltekdev\nFlexplus\nCostpoint\nDCO\nOffsec\nGovwinProduction\nGovwinDev\nInterspec\nEspecs\nArcom\nDeltekEA\nOnvia\nGlobalOSS\nECMaconomy\nSecuritySandbox\nDeliverySandbox\nUnionpoint\nServiceBroker\nArchsandbox\nSC-Vantagepoint\nEC-MGT\nPieterEerlings\nsc-dhtmlx\nsc-ssec\nec-ssec')
-        // string(name: 'Username', defaultValue: '', description: '')
-        // string(name: 'Email', defaultValue: '', description: '')
-        // string(name: 'Employee ID', defaultValue: '', description: '')
-        // string(name: 'ServiceNow Case', defaultValue: '', description: '')
-        string(name: 'Environment', defaultValue: 'rod_aws', description: '')
-        string(name: 'RoleName', defaultValue: 'rod_test_00', description: '')
-        string(name: 'PolicyNames', defaultValue: 'AMICreationAssumeRole,AMICreationPolicy,NonExistentPolicy', description: '')
-    }
-
-
-
     stages {
         stage('Checkout Source') {
             steps {
@@ -73,29 +102,6 @@ pipeline {
                 }
             }
         }
-        // stage('GetEnvironmentDetails') {
-        //     steps {
-        //         script {
-        //             // environment = params.Environment
-
-        //             def rolesByEnvironment = rolesToPoliciesObjs.groupBy { it.environment }
-                    
-        //             rolesByEnvironment.each { environment, rolesToPoliciesObj ->
-        //                 echo "${environment}"
-        //                 echo "${rolesToPoliciesObj}"
-        //             }
-        //             // switch (environment) {
-        //             //     case 'rod_aws':
-        //             //         credentialsId = 'rod_aws'
-        //             //         break
-        //             //     default:
-        //             //         error("No matching environment details found that matches \"${environment}\".")
-        //             // }
-
-        //             // echo "Successfully retrieved environment details for environment \"${environment}\"."          
-        //         }
-        //     }
-        // }
         stage('GetPolicyARNs') {
             steps {
                 script {
@@ -109,88 +115,11 @@ pipeline {
                         
                         echo "${environment}"
 
-                        def awsCredential = ""
-
-                        // if(environment=="Deltekdev"){
-                        //     awsCredential = 'infra-at-dev'
-                        // }
-                        if(environment=="dcoflexplus"){
-                            awsCredential = 'infra-at-flexplus'
-                        }
-                        // else if(environment=="Costpoint"){
-                        //     awsCredential = 'infra-at-costpoint'
-                        // }
-                        // else if(environment=="DCO"){
-                        //     awsCredential = 'infra-at-dco'
-                        // }
-                        // else if(environment=="Offsec"){
-                        //     awsCredential = 'infra-at-offsec'
-                        // }
-                        // else if(environment=="GovwinProduction"){
-                        //     awsCredential = 'infra-at-govwinpd'
-                        // }
-                        // else if(environment=="GovwinDev"){
-                        //     awsCredential = 'infra-at-govwindv'
-                        // }
-                        // else if(environment=="Interspec"){
-                        //     awsCredential = 'infra-at-interspec'
-                        // }
-                        // else if(environment=="Especs"){
-                        //     awsCredential = 'infra-at-especs'
-                        // }
-                        // else if(environment=="Arcom"){
-                        //     awsCredential = 'infra-at-arcom'
-                        // }
-                        // else if(environment=="DeltekEA"){
-                        //     awsCredential = 'infra-at-deltekea'
-                        // }
-                        // else if(environment=="Onvia"){
-                        //     awsCredential = 'infra-at-onvia'
-                        // }
-                        // else if(environment=="GlobalOSS"){
-                        //     awsCredential = 'infra-at-oss'
-                        // }
-                        // else if(environment=="ECMaconomy"){
-                        //     awsCredential = 'infra-at-ecmaconomy'
-                        // }
-                        // else if(environment=="SecuritySandbox"){
-                        //     awsCredential = 'infra-at-secsandbox'
-                        // }
-                        // else if(environment=="DeliverySandbox"){
-                        //     awsCredential = 'infra-at-delsandbox'
-                        // }
-                        // else if(environment=="Unionpoint"){
-                        //     awsCredential = 'infra-at-unionpoint'
-                        // }
-                        // else if(environment=="ServiceBroker"){
-                        //     awsCredential = 'infra-at-servicebroker'
-                        // }
-                        // else if(environment=="Archsandbox"){
-                        //     awsCredential = 'infra-at-archsandbox'
-                        // }
-                        // else if(environment=="SC-Vantagepoint"){
-                        //     awsCredential = 'infra-at-sc-vantagepoint'
-                        // }
-                        // else if(environment=="EC-MGT"){
-                        //     awsCredential = 'infra-at-ec-mgt'
-                        // }
-                        // else if(environment=="PieterEerlings"){
-                        //     awsCredential = 'infra-at-pieter-eerlings'
-                        // }
-                        // else if(environment=="sc-dhtmlx"){
-                        //     awsCredential = 'infra-at-sc-dhtmlx'
-                        // }
-                        // else if(environment=="sc-ssec"){
-                        //     awsCredential = 'infra-at-sc-ssec'
-                        // }
-                        // else if(environment=="ec-ssec"){
-                        //     awsCredential = 'infra-at-ec-ssec'
-                        // }
+                        def awsCredential = getAwsCredential(environment)
 
                         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${awsCredential}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
                             objs.each { obj ->
-                                echo "${obj.roleName} ${obj.policyNames}"
 
                                 def roleName = obj.roleName
                                 def policyNames = obj.policyNames
@@ -199,8 +128,6 @@ pipeline {
 
                                 // Executes the AWS CLI command and does some post-processing.
                                 policyARNs = sh(script: cmd, returnStdout: true).trim()
-
-                                echo "${policyARNs}"
                                 
                                 rolesToPoliciesObjs.find { (it.policyNames == policyNames && it.environment == environment) && it.roleName == roleName }?.policyARNs = policyARNs
                             }
@@ -232,83 +159,7 @@ pipeline {
                         
                         echo "${environment}"
 
-                        def awsCredential = ""
-
-                        // if(environment=="Deltekdev"){
-                        //     awsCredential = 'infra-at-dev'
-                        // }
-                        if(environment=="dcoflexplus"){
-                            awsCredential = 'infra-at-flexplus'
-                        }
-                        // else if(environment=="Costpoint"){
-                        //     awsCredential = 'infra-at-costpoint'
-                        // }
-                        // else if(environment=="DCO"){
-                        //     awsCredential = 'infra-at-dco'
-                        // }
-                        // else if(environment=="Offsec"){
-                        //     awsCredential = 'infra-at-offsec'
-                        // }
-                        // else if(environment=="GovwinProduction"){
-                        //     awsCredential = 'infra-at-govwinpd'
-                        // }
-                        // else if(environment=="GovwinDev"){
-                        //     awsCredential = 'infra-at-govwindv'
-                        // }
-                        // else if(environment=="Interspec"){
-                        //     awsCredential = 'infra-at-interspec'
-                        // }
-                        // else if(environment=="Especs"){
-                        //     awsCredential = 'infra-at-especs'
-                        // }
-                        // else if(environment=="Arcom"){
-                        //     awsCredential = 'infra-at-arcom'
-                        // }
-                        // else if(environment=="DeltekEA"){
-                        //     awsCredential = 'infra-at-deltekea'
-                        // }
-                        // else if(environment=="Onvia"){
-                        //     awsCredential = 'infra-at-onvia'
-                        // }
-                        // else if(environment=="GlobalOSS"){
-                        //     awsCredential = 'infra-at-oss'
-                        // }
-                        // else if(environment=="ECMaconomy"){
-                        //     awsCredential = 'infra-at-ecmaconomy'
-                        // }
-                        // else if(environment=="SecuritySandbox"){
-                        //     awsCredential = 'infra-at-secsandbox'
-                        // }
-                        // else if(environment=="DeliverySandbox"){
-                        //     awsCredential = 'infra-at-delsandbox'
-                        // }
-                        // else if(environment=="Unionpoint"){
-                        //     awsCredential = 'infra-at-unionpoint'
-                        // }
-                        // else if(environment=="ServiceBroker"){
-                        //     awsCredential = 'infra-at-servicebroker'
-                        // }
-                        // else if(environment=="Archsandbox"){
-                        //     awsCredential = 'infra-at-archsandbox'
-                        // }
-                        // else if(environment=="SC-Vantagepoint"){
-                        //     awsCredential = 'infra-at-sc-vantagepoint'
-                        // }
-                        // else if(environment=="EC-MGT"){
-                        //     awsCredential = 'infra-at-ec-mgt'
-                        // }
-                        // else if(environment=="PieterEerlings"){
-                        //     awsCredential = 'infra-at-pieter-eerlings'
-                        // }
-                        // else if(environment=="sc-dhtmlx"){
-                        //     awsCredential = 'infra-at-sc-dhtmlx'
-                        // }
-                        // else if(environment=="sc-ssec"){
-                        //     awsCredential = 'infra-at-sc-ssec'
-                        // }
-                        // else if(environment=="ec-ssec"){
-                        //     awsCredential = 'infra-at-ec-ssec'
-                        // }
+                        def awsCredential = getAwsCredential(environment)
 
                         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${awsCredential}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
@@ -327,17 +178,39 @@ pipeline {
                 }
             }
         }
-        // stage('AttachPoliciesToRoles') {
-        //     steps {
-        //         script {
+        stage('AttachPoliciesToRoles') {
+            steps {
+                                script {
+                    // policyNames = params.PolicyNames
 
-        //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-        //                 sh "python3 3_attach_policies_to_role.py '${roleName}' '${policyARNs}'"
-        //             }
+                    // echo "${policyNames}"
+
+                    def rolesByEnvironment = rolesToPoliciesObjs.groupBy { it.environment }
                     
-        //         }
-        //     }
-        // }
+                    rolesByEnvironment.each { environment, objs ->
+                        
+                        echo "${environment}"
+
+                        def awsCredential = getAwsCredential(environment)
+
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${awsCredential}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+
+                            objs.each { obj ->
+
+                                def roleName = obj.roleName
+                                def policyARNs = obj.policyARNs
+
+                                def cmd = "python3 3_attach_policies_to_role.py '${roleName}' '${policyARNs}'"
+
+                                // Executes the AWS CLI command and does some post-processing.
+                                def policyAttachmentResponse = sh(script: cmd, returnStdout: true).trim()
+                                echo "${policyAttachmentResponse}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
