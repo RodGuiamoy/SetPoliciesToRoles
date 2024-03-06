@@ -7,37 +7,37 @@ class rolesToPoliciesObj {
 
 String getAwsCredential(String environment) {
     switch (environment) {
-        case "Avitru"
+        case "Avitru":
             return 'infra-at-arcom'
-        case "dcoflexplus"
+        case "dcoflexplus":
             return 'infra-at-flexplus'
         // case "dcosandbox"
         //     return ''
-        case "Deltek CostPoint"
+        case "DeltekCostPoint":
             return 'infra-at-costpoint'
-        case "DeltekDCO"
+        case "DeltekDCO":
             return 'infra-at-dco'
-        case "DeltekDCODev"
+        case "DeltekDCODev":
             return 'infra-at-dev'
-        case "EC-Maconomy-Sandbox"
+        case "EC-Maconomy-Sandbox":
             return 'infra-at-ecmaconomy'
-        case "EC-SSEC"
+        case "EC-SSEC":
             return 'infra-at-ec-ssec'
-        case "GlobalOSS"
+        case "GlobalOSS":
             return 'infra-at-oss'
-        case "GovWin"
+        case "GovWin":
             return 'infra-at-govwinpd'
-        case "GovWinDev"
+        case "GovWinDev":
             return 'infra-at-govwindv'
-        case "OnviaInc"
+        case "OnviaInc":
             return 'infra-at-onvia'
-        case "SC-Cloud-Arch-Sandbox"
+        case "SC-Cloud-Arch-Sandbox":
             return 'infra-at-archsandbox'
-        case "SC-DHTMLX"
+        case "SC-DHTMLX":
             return 'infra-at-sc-dhtmlx'
-        case "SC-SSEC"
+        case "SC-SSEC":
             return 'infra-at-sc-ssec'
-        case "Unionpoint"
+        case "Unionpoint":
             return 'infra-at-unionpoint'
         default:
             return '' 
