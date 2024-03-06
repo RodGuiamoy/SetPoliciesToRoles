@@ -54,6 +54,7 @@ pipeline {
                     def rows = csvData.split('\n')
 
                     rows.each { row ->
+                        row = row.replaceAll("\\s", "")
 
                         // Define the regular expression pattern
                         def pattern = /'([^']*)'/
@@ -196,25 +197,27 @@ pipeline {
                                 def cmd = "python3 1_get_policy_arns.py '${policyNames}'"
 
                                 // Executes the AWS CLI command and does some post-processing.
-                                // The output includes the command at the top and can't be parsed so we have to drop the first line
                                 policyARNs = sh(script: cmd, returnStdout: true).trim()
+
+                                echo "${policyARNs}"
                                 
                                 rolesToPoliciesObjs.find { it.policyNames == policyNames && it.environment == environment }?.policyARNs = policyARNs
 
                                 // echo "${policyARNs}"
+                                //sleep(30)
                             }
                         }
                     }
 
-                    rolesToPoliciesObjs.each { obj ->
-                        def str = "\n"
-                        str += "Environment: ${obj.environment}\n"
-                        str += "Role: ${obj.roleName}\n"
-                        str += "Policy Names: ${obj.policyNames}\n"
-                        str += "Policy ARNs: ${obj.policyARNs}\n"
+                    // rolesToPoliciesObjs.each { obj ->
+                    //     def str = "\n"
+                    //     str += "Environment: ${obj.environment}\n"
+                    //     str += "Role: ${obj.roleName}\n"
+                    //     str += "Policy Names: ${obj.policyNames}\n"
+                    //     str += "Policy ARNs: ${obj.policyARNs}\n"
                     
-                        echo "${str}"
-                    }
+                    //     echo "${str}"
+                    // }
                 }
             }
         }
