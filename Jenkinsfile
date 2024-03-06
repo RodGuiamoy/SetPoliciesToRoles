@@ -3,8 +3,8 @@ def credentialsId = ""
 def policyARNs = ""
 def roleName = ""
 
-
 pipeline {
+
   agent { label 'jenkins-slave-linux-cu01use1gs1jx01' }
   
   parameters {
@@ -51,7 +51,15 @@ pipeline {
                     echo "${policyNames}"
 
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        sh "python3 1_get_policy_arns.py '${policyNames}'"
+                        
+                        def cmd = "python3 1_get_policy_arns.py '${policyNames}'"
+
+                        // Executes the AWS CLI command and does some post-processing.
+                        // The output includes the command at the top and can't be parsed so we have to drop the first line
+                        policyARNs = sh(script: cmd, returnStdout: true).trim()
+                        // cmdOutput = cmdOutput.readLines().drop(1).join("\n")
+                        
+                        echo "${policyARNs}"
                     }
                     
                 }
@@ -71,5 +79,17 @@ pipeline {
                 }
             }
         }
+        stage('AttachPoliciesToRoles') {
+            steps {
+                script {
+
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',credentialsId: "${credentialsId}", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        sh "python3 3_attach_policies_to_role.py '${roleName}' '${policyARNs}'"
+                    }
+                    
+                }
+            }
+        }
     }
 }
+
