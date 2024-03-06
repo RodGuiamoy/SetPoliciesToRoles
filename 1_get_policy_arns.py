@@ -22,12 +22,12 @@ policy_names = sys.argv[1]
 policy_names_split = policy_names.split(',')
 policy_arns = get_policy_arn_by_name(policy_names_split)
 
-for policy_name, policy_arn in policy_arns.items():
-    # print(f"Policy Name: {policy_name}, ARN: {policy_arn}")
-    if policy_arn:
-        print(f"The ARN of '{policy_name}' policy is: {policy_arn}")
-    else:
-        print(f"No policy found with the name '{policy_name}'")
+# for policy_name, policy_arn in policy_arns.items():
+#     # print(f"Policy Name: {policy_name}, ARN: {policy_arn}")
+#     if policy_arn:
+#         print(f"The ARN of '{policy_name}' policy is: {policy_arn}")
+#     else:
+#         print(f"No policy found with the name '{policy_name}'")
 
 # Extract ARNs from the dictionary and filter out None values
 arns = [arn for arn in policy_arns.values() if arn is not None]
