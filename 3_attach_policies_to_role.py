@@ -24,9 +24,19 @@ policy_arns_split = policy_arns.split(',')
 
 for policy_arn in policy_arns_split:
 
-    response = client.attach_role_policy(
-        PolicyArn=policy_arn,
-        RoleName=role_name
-    )
+    
+    try :
+        print(f"Attaching policy: {policy_arn}")
+        response = client.attach_role_policy(
+            PolicyArn=policy_arn,
+            RoleName=role_name
+        )
+        
+        print(response)
+    
+    
+    except Exception as e:
+        # Catch any other exceptions and print the error
+        print(f"An error occurred: {e}")
 
-    print(response)
+        
