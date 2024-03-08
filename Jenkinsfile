@@ -49,7 +49,11 @@ def rolesToPoliciesObjs = []
 
 pipeline {
 
-  agent { label 'jenkins-slave-linux-cu01use1gs1jx01' }
+    agent { label 'jenkins-slave-linux-cu01use1gs1jx01' }
+
+    parameters {
+        choice(name: 'ReplaceRoles', choices: ['True', 'False'])
+    }
   
     stages {
         stage('Checkout Source') {
