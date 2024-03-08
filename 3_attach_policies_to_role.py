@@ -24,7 +24,6 @@ policy_arns_split = policy_arns.split(',')
 
 for policy_arn in policy_arns_split:
 
-    
     try :
         print(f"Attaching policy: {policy_arn}")
         response = client.attach_role_policy(
