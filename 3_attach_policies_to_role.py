@@ -5,9 +5,20 @@ client = boto3.client('iam')
 
 role_name = sys.argv[1]
 policy_arns = sys.argv[2]
+replace_roles = sys.argv[3]
 
-# role_name = 'rod_test_00'
-# policy_arns = 'arn:aws:iam::554249804926:policy/AMICreationAssumeRole,arn:aws:iam::554249804926:policy/AMICreationPolicy'
+
+def detach_all_policies_from_role(role_name):
+    response = client.list_attached_role_policies(RoleName=role_name)
+    for policy in response['AttachedPolicies']:
+        response = client.detach_role_policy(
+            RoleName=role_name,
+            PolicyArn=policy['PolicyArn']
+        )
+        print(f"Detached policy: {policy['PolicyArn']}")
+        
+if replace_roles == 'True': 
+    detach_all_policies_from_role(role_name)
 
 policy_arns_split = policy_arns.split(',')
 
