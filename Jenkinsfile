@@ -182,8 +182,9 @@ pipeline {
 
                                     def roleName = obj.roleName
                                     def policyARNs = obj.policyARNs
+                                    def replaceRoles = params.ReplaceRoles
 
-                                    def cmd = "python3 3_attach_policies_to_role.py '${roleName}' '${policyARNs}'"
+                                    def cmd = "python3 3_attach_policies_to_role.py '${roleName}' '${policyARNs}' '${replaceRoles}'"
 
                                     try {
                                         // Executes the AWS CLI command and does some post-processing.
