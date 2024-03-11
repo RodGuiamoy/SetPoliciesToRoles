@@ -59,7 +59,7 @@ pipeline {
     stages {
         stage('Checkout Source') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: "*/main"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: "https://github.com/RodGuiamoy/SetPoliciesToRoles.git"]]])
+                checkout([$class: 'GitSCM', branches: [[name: "*/1-set-trust-policies-with-corresponding-account-number"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: "https://github.com/RodGuiamoy/SetPoliciesToRoles.git"]]])
             }
         }
         stage('Read CSV') {
