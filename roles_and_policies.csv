@@ -1,2 +1,2 @@
-AWS Tenant,ConsolidatedPolicies,AWSIAMRoleNameNew
-GovWinDev,"DCO_EC2_Start_Stop_Instances,S3_Read-Write_gw-ml,DCO_SNS_SQS_Lambda,DCO_IAMCreateRole_codebuild-SmartFit,Delete_CloudWatch_Logs,DCO_KMS_EC2,TranslateFullAccess,AWSCodeBuildAdminAccess,AWSCodeCommitFullAccess,AWSCodePipeline_FullAccess,AWSCodePipelineFullAccessReadOnlyAccess",ADFS-GovWinDev-cld-mgt-smb-us
+AccountNumber,AWS Tenant,ConsolidatedPolicies,AWSIAMRoleNameNew
+535726127367,EC-SSEC,DGC_Infrastructure_SRE,ADFS-EC-SSEC-cld-sre-infra

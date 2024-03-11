@@ -2,8 +2,8 @@ import json
 import boto3
 import sys
 
-role_name = sys.argv[1]
-# role_name = 'rod_test_00'
+account_number = sys.argv[1]
+role_name = sys.argv[2]
 
 trust_policy = {
     "Version": "2012-10-17",
@@ -23,7 +23,7 @@ updated_trust_policy = {
         {
             "Effect": "Allow",
             "Principal": {
-                "Federated": "arn:aws:iam::389812532864:saml-provider/global-oss-idp"
+                "Federated": f"arn:aws:iam::{account_number}:saml-provider/global-oss-idp"
             },
             "Action": "sts:AssumeRoleWithSAML",
             "Condition": {

@@ -1,4 +1,5 @@
 class rolesToPoliciesObj {
+    String accountNumber
     String environment
     String policyNames
     String policyARNs
@@ -77,7 +78,7 @@ pipeline {
                         // Find all matches using the pattern
                         def matcher = (row =~ pattern)
 
-                        rolesToPoliciesObjs << new rolesToPoliciesObj(environment: matcher[0][1], policyNames: matcher[1][1], policyARNs: "", roleName: matcher[2][1])
+                        rolesToPoliciesObjs << new rolesToPoliciesObj(accountNumber: matcher[0][1], environment: matcher[1][1], policyNames: matcher[2][1], policyARNs: "", roleName: matcher[3][1])
 
                         
                     }
@@ -152,8 +153,9 @@ pipeline {
                             objs.each { obj ->
 
                                 def roleName = obj.roleName
+                                def accountNumber = obj.accountNumber
 
-                                def cmd = "python3 2_create_role.py '${roleName}'"
+                                def cmd = "python3 2_create_role.py '${accountNumber}' '${roleName}'"
 
                                 // Executes the AWS CLI command and does some post-processing.
                                 def newRole = sh(script: cmd, returnStdout: true).trim()
